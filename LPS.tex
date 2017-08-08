@@ -1,0 +1,548 @@
+\documentclass[a4paper,10pt, oneside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{lscape}
+\usepackage{rotating}
+\usepackage{epstopdf}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{float}
+%\usepackage{hyperref}
+
+\setlength{\arrayrulewidth}{0.3mm}
+\setlength{\tabcolsep}{12pt}
+\renewcommand{\arraystretch}{1.4}
+
+%\newcommand{\R}{\ensuremath{\mathbb{R}}}
+%\newcommand{\C}{\ensuremath{\mathbb{C}}}
+%\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+%\newcommand{\NN}{\ensuremath{\mathbb{N}}}
+%\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+%\newcommand{\Bi}{\ensuremath{\mathrm{Bi}}}
+%\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+%\newcommand{\spn}{\ensuremath{\mathrm{Span}}}
+%\newcommand{\Tr}{\ensuremath{\mathrm{Tr}}}
+%\newcommand{\diag}{\ensuremath{\mathrm{diag}}}
+
+\newcommand{\curl}{\ensuremath{\boldsymbol{\nabla \times}}}
+\newcommand{\cp}{\ensuremath{\boldsymbol{\times}}}
+\newcommand{\ip}{\ensuremath{\boldsymbol{\cdot}}}
+\newcommand{\divn}{\ensuremath{\boldsymbol{\nabla \cdot}}}
+\newcommand{\mb}{\ensuremath{\mathbf}}
+\newcommand{\ep}{\ensuremath{\epsilon}}
+\newcommand{\p}{\ensuremath{\partial}}
+
+\newcommand{\la}{\ensuremath{\langle}}
+\newcommand{\ra}{\ensuremath{\rangle}}
+\newcommand{\D}{\ensuremath{\Delta}}
+\newcommand{\nn}{\ensuremath{\boldsymbol{\nabla}}}
+\newcommand{\grad}{\ensuremath{\boldsymbol{\nabla}}}
+\newcommand{\omm}{\ensuremath{\omega}}
+\newcommand{\bs}{\ensuremath{\boldsymbol}}
+
+%\newcommand{\curl}{\ensuremath{\mathrm{curl}}}
+%\newcommand{\supp}{\ensuremath{\mathrm{supp}}}
+%\newcommand{\nt}{\noindent}
+%\newcommand{\PP}{\ensuremath{P}}
+%\newcommand{\uu}{\ensuremath{\mathbf{u}}}
+%\newcommand{\vv}{\ensuremath{\mathbf{v}}}
+%\newcommand{\vs}{\ensuremath{\mathbf{s}}}
+%\newcommand{\cc}{\ensuremath{\mathbf{c}}}
+%\newcommand{\dd}{\ensuremath{\mathbf{d}}}
+%\newcommand{\bb}{\ensuremath{\mathbf{b}}}
+%\newcommand{\xx}{\ensuremath{\mathbf{x}}}
+%\newcommand{\nn}{\ensuremath{\mathbf{n}}}
+%\newcommand{\LL}{\ensuremath{\mathcal{L}}}
+%\newcommand{\into}{\ensuremath{\int_{\Omega}}}
+
+\addtolength{\voffset}{-20mm}
+\addtolength{\hoffset}{-25mm}
+\textwidth = 170mm
+\textheight = 250mm
+
+%opening
+\title{Benchtop linear power supply: design, construction and characterisation}
+\author{G. Jolley}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document describes the design, simulation and characterisation of a general purpose benchtop linear power supply that incorporates current limiting. This is work in progress, results are documented as they are obtained. 
+\end{abstract}
+
+\section{LPS characteristics, features and design goals}
+Ultimately, a general purpose power supply performs a single function; provide a constant voltage to a load irrespective of any time dependent current requirement. All power supplies exhibit nonideal behaviour. The following are commonly specified to describe power supply quality,
+\begin{itemize}
+	\item Noise and ripple
+	\item Load regulation
+	\item Transient response
+\end{itemize}
+\subsubsection*{Noise and ripple}
+The magnitude of noise and ripple present on the output of a linear power supply indicates how far the supply is from ideally regulated. A low-noise/ripple supply may be important for powering certain classes of circuits. For example, relatively small amounts of supply noise may adversely effect the performance of precision spectral analysis circuits. 
+\subsubsection*{Load regulation}
+Load regulation indicates the degree of dependence that the output voltage has on the static load current and is defined by the equation,
+\begin{equation}
+\%\textrm{ Load regulation} = 100\%\frac{\Delta V_{\textrm{out}}}{\Delta I_{\textrm{load}}}\frac{1}{V_{\textrm{out}}}
+\end{equation}
+\subsubsection*{Transient response}
+Sudden changes in load current result in transient fluctuations of the supply voltage. When designing a power supply great attention must be given to its transient behaviour. Transient behaviour indicates the degree of stability of the power supply, which must be ensured for all expected load conditions. In addition, excessive ringing of the output voltage in response to sudden changes of load current can be considered as load induced noise. 
+\subsection*{Power supply features}
+A general purpose benchtop power supply must have two supplies at a minimum to allow for the powering of split-rail analog circuits. The addition of a third, lower voltage supply is useful for powering mixed analog and digital circuits. Current limiting is vital for R\&D purposes to (hopefully) eliminate the possibility of circuit destruction. A constant current mode has many applications beyond circuit protection. Digitally controlling and monitoring the power supply voltage, load current and current limit enhances its functionality. For example, microcontroller routines can be written for battery charging applications or circuit and component I-V characterisation. 
+
+The upper supply voltage and current capability must be chosen. Increasing the voltage and current capability extends the usability of the supply, all-be-it with diminishing returns. However, an increase of the voltage capability comes with increasing costs of thermal dissipation management and transformer size. An upper voltage of about 35 V and a continuous current capability of 4 A are tentatively chosen. 
+A tentative list of the power supply features include:
+\begin{itemize}
+	\item Two independent and electrically isolated voltage adjustable channels with a 35V and 4A capability. 
+	\item A third lower-voltage adjustable channel intended for the powering of digital circuits, also electrically isolated.
+	\item Analog constant current and digital shutdown protection modes on all channels.
+	\item Digital control of voltage and current limit.
+	\item Load current and voltage readout.
+	\item Computer USB interface for data logging.
+\end{itemize}
+A single control board shall communicate with the 3 power boards and handle all user interface and data logging tasks. A description of the third, lower voltage supply will be given after that of the main supplies. 
+\section{Power board analog design}
+\begin{figure}[H]
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=17cm]{ana_topology2.eps}
+	\caption{Basic topology of the constant voltage and constant current control loops.}\label{ana_topology}
+\end{figure}
+The proposed topology of the constant voltage (CV) and constant current (CC) control loops is shown in figure \ref{ana_topology}. Opamps are an ideal choice for central use in the control loops since low cost and high performance options are available.  
+\subsection*{Opamp requirements}
+\subsubsection*{Noise}
+The wide band output voltage noise of the CV loop is ultimately limited by the input noise of the opamp, U1 (of figure \ref{ana_topology}). Reference voltage noise and thermal noise of the feedback resistors (R1 and R2) also contribute to the voltage noise. Reference voltage noise can be filtered, although, filtering low-frequency noise might be cumbersome. Within the frequency band 10 Hz-100 kHz a total output noise voltage of 50 $\mu V_{\textrm{RMS}}$ is a low noise figure for a linear power supply and is chosen as the maximum specification limit. If noise is dominated by the opamp voltage noise its density, $\textrm{e}_{\textrm{n}}$, must be less than,
+\begin{equation}
+\textrm{e}_{\textrm{n}} < \frac{50\,\mu V}{\sqrt{10^{5}-10}}\frac{R2}{R1+R2} = \frac{R2}{R1+R2}\times 158\,nV_{\textrm{RMS}}/\sqrt{Hz}
+\end{equation} 
+Feedback resistance (R1 and R2) will contribute to the output noise by the inherent thermal noise of the resistors and through opamp noise current which ultimately must be considered. 
+
+The output current noise of the constant current loop is limited by the input voltage noise of U2 and U3. The magnitude of the noise contribution from U2 is inversely proportional to the resistance of $\textrm{R}_{\textrm{sense}}$,
+\begin{equation}
+\textrm{I}_{\textrm{noise}} = \frac{\textrm{e}_{\textrm{n}}}{\textrm{R}_{\textrm{sense}}}
+\end{equation}
+where $\textrm{e}_{\textrm{n}}$ is the input referred voltage noise of U2. 
+The contribution of U3 to the current noise of the constant current loop is given by,
+\begin{equation}
+\textrm{e}_{\textrm{n}}\frac{I_{\textrm{max}}}{V-_{\textrm{max}}}
+\end{equation}
+where $I_{max}$ is the maximum constant current, and $V-_{\textrm{max}}$ is the voltage on the inverting input of U3 that corresponds to the maximum current. It is likely that Eq. 3 will be greater than Eq. 4 since R$_{\textrm{sense}}$ is small. 
+\subsubsection*{Transient response}
+The response time of the CV loop is limited by the bandwidth of the pass transistor, Q1, in addition to the effects of unavoidable inductances associated with the wiring of Q1 and the output capacitance. As such, it appears that there is no advantage to using a very high speed opamp for U1. The phase delay of U1 is of great importance to the transient response, this will be discussed in detail later. 
+U2 can be of relatively high speed such that the U2, Q3 and R4 combination form a tight local feedback loop with little phase delay with respect to the entire CC feedback loop.  
+\subsubsection*{Load regulation}
+Load regulation is limited by the DC loop gain. Since the loop gain is expected to be very large the load regulation is likely to be insignificant. 
+\subsection*{SPICE simulations}
+The schematic of the constant voltage analog section of the linear power supply as simulated using LTspice is shown in figure \ref{spice_V}. The LT6233 opamp has been chosen for its very low noise, a gain-bandwidth product that is sufficient for a fast transient response and a phase delay that allows for good stability. To capture some of the realistic characteristics of the output capacitance a SPICE model of a 100 $\mu$F Rubycon aluminium polymer capacitor (50PZF100M10X9) was incorporated into the simulations. Inductances have also been included to represent pass transistor wiring. 
+\subsubsection*{Circuit description}
+The CV control loop is a negative feedback circuit and its dynamic behaviour can be understood in terms of the loop gain, A(s), and phase delay, $\phi$(s), as a function of frequency. A necessary condition for stability is a loop gain of less than unity at the frequency where the phase delay is 360 degrees. An understanding of the behaviour of the CV loop is aided by small signal transfer function calculations of the transistor network shown in Fig. \ref{tran_network}, the results of which are shown in Fig. \ref{tran_plot}.
+\subsubsection*{Constant voltage loop}
+\begin{figure}[H]
+		\begin{centering}
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=16cm]{spice_V.eps}
+	\caption{Schematic diagram of the constant voltage control loop as simulated by LTspice.}\label{spice_V}
+		\end{centering}
+\end{figure}
+\begin{figure}[H]
+		\begin{centering}
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=16cm]{transistor.eps}
+	\caption{Schematic diagram of the transistor network as simulated by LTspice.}\label{tran_network}
+		\end{centering}
+\end{figure}
+\begin{figure}[H]
+		\begin{centering}
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=13.5cm]{tran_net.eps}
+	\caption{Small signal AC transfer function of the transistor network of the schematic shown in Fig. \ref{tran_network}. V4 is the small signal input and Vfeed is the output.}\label{tran_plot}
+		\end{centering}
+\end{figure}
+At low frequencies the phase delay of the transistor network is minimal because the resistive load and output capacitance combination appears resistive. The phase then begins to decrease towards -90$^{\circ}$ as the output appears capacitive. At higher frequencies greater than 1 kHz the phase increases as the ESR and ESL of the output capacitors make the output appear resistive once again. For frequencies greater than about 1 MHz the phase decreases again due to the bandwidth limits of Q1 and Q2. C2 and C5 play the most critical role, they provides a phase lead around the 5 kHz to 50 kHz band, without which, the additional phase delay of the LT6233 opamp results in a marginal phase margin and ringing of the pass transistor in response to sudden changes in load current. The phase delay of the opamp at the lower frequencies where the phase delay of the transistor network approaches $90^{\circ}$ clearly has a critical impact upon circuit stability. The LT6233 opamp has a phase delay sufficiently less than $90^{\circ}$ within this critical frequency band.  A higher-frequency oscillation may result if the loop gain does not decrease sufficiently for frequencies greater than a few MHz. Circuit simulations suggest that there are no high-frequency oscillations, however, if the actual circuit displays high-frequency instabilities then C5 can be removed since it has a strong impact upon loop gain at high-frequency, but only makes a small contribution to the low-frequency stability. Figure \ref{CV_2A_inc} is a plot of the calculated pass transistor collector current in response to a step change of the load current for the optimised component values as shown in Fig. \ref{spice_V} and for C2 = 100 pF. The importance of the phase lead created by C2 is evident. 
+
+\begin{figure}[H]
+	\begin{centering}
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=10cm]{LT6233.eps}
+	\caption{Open-loop gain and phase of the LT6233 opamp.}\label{LT6233}
+	\end{centering}
+\end{figure}
+
+\begin{figure}[H]
+\begin{centering}	
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=12cm]{Ic_2A_plot.eps}
+	\caption{Simulated constant voltage loop response to a step increase of load current from 20 mA to 2 A.}\label{CV_2A_inc}
+\end{centering}	
+\end{figure}
+
+\begin{figure}[H]
+	\hspace*{-1cm}
+	\begin{centering}
+	% Requires \usepackage{graphicx}
+	\includegraphics[width=19cm]{spice_I.eps}
+	\caption{Schematic diagram of the CV and CC control loops as simulated by LTspice.}\label{spice_I}
+	\end{centering}
+\end{figure}
+
+The full simulation schematic of the combined CV and CC control loops is shown in Fig. \ref{spice_I}. Although the CC and CV loops shares circuitry the CC loop is compatible with optimal CV loop component values. The LT6202 opamp senses the voltage across R2 and together with R14, R16 and Q2 produces a voltage across R16 in proportion to the emitter current of Q2, $V_{\textrm{R16}} = I_{\textrm{E,Q2}}$. LT6202 has a relatively large gain-bandwidth product of about 100 MHz such that the voltage across R16 has little phase delay in response to the emitter current of Q2 at the frequencies of importance to the entire CC feedback loop. C12 produces a phase lead to assist in stability of the loop, while C11 ensures high-frequency stability of the LT6202 opamp. The OPA140 opamp compares the voltage across R16 to the current limit setting voltage. When $V_{\textrm{R16}}$ becomes greater than the current limiting voltage the MMBTH10 transistor starts to conduct and draw current away from the base of Q1. C7, C9 and C10 provide a phase-lead. R18, R19 and C8 in addition to C6 reduces the loop gain at higher frequency. The net effect is a loop gain of less than unity at the frequencies where the phase delay is greater than 360$^{\circ}$. The OPA140 opamp has an important property: There are no protection diodes connected between the inputs and large differential voltages are permissible without input current draw. This property is important since it permits a large current limit setting voltage to be present on the inverting input of U2 without interfering with the voltage across R16. Fig. \ref{CC_0A5} displays the response of the CC circuit to a step increase of load current with current limiting set to 0.5 A. The time taken to limit current is less than 10 $\mu S$ with a settling time of about 50 $\mu S$. Fairly good...
+
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=12cm]{CC_0A5.eps}
+		\caption{Simulated constant current loop response to a step increase of load current.}\label{CC_0A5}
+	\end{centering}	
+\end{figure}
+\section{Analog prototype board}
+The analog sections of the power supply were prototyped and characterised. The prototype schematic diagram and PCB layout are shown in figures \ref{proto_sch} - \ref{proto_bottom}. The prototype schematic closely matches the SPICE simulation circuit, with the addition of opamp and reference voltage power circuitry. The prototype board was populated and characterised with the component values as shown in the schematic diagram. 
+Careful consideration has (and must) be given to the PCB layout in order for the circuit to behave as intended. A substandard layout will degrade performance from optimal. The PCB layout can have an impact upon the following LPS characteristics in particular,
+\begin{itemize}
+	\item Voltage regulation
+	\item Ripple
+	\item Excessive transient ringing / stability issues
+\end{itemize}
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=12cm]{PCB_diagram.eps}
+		\caption{Diagram of a) poor PCB layout resulting in excess ripple due to current loops and b) the strategy used to minimise excess ripple.}\label{PCB_diagram}
+	\end{centering}	
+\end{figure}
+Ground current loops can result in ripple and degraded voltage regulation as demonstrated in Fig. \ref{PCB_diagram}. Fortunately, the effects of ground current loops are easily minimised by following two strategies. All large currents, namely those associated with the input, filtering capacitors and the output load are isolated from the control loops. In addition, the point at which the control loops derive their ground potential is taken at output connector. Optimising the PCB layout in regards to transient response is a little bit more complicated. Consideration must be given to the effects of PCB parasitic capacitance, capacitive coupling and electromagnetic coupling. Parasitic capacitance can degrade phase margin and therefore stability and capacitive and magnetic coupling can result in unintentional feedback which can lead to stability issues. 
+
+
+\begin{figure}[H]
+	\hspace*{-1.2cm}
+	\begin{centering}
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=20cm]{proto_sch.eps}
+		\caption{Schematic diagram of the analog prototype board.}\label{proto_sch}
+	\end{centering}
+\end{figure}
+
+\begin{figure}[H]
+	\hspace*{-0.5cm}
+	\begin{centering}
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=15cm]{proto_top.eps}
+		\caption{PCB top copper layer of the analog prototype board.}\label{proto_top}
+	\end{centering}
+\end{figure}
+
+\begin{figure}[H]
+	\hspace*{-0.5cm}
+	\begin{centering}
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=15cm]{proto_bottom.eps}
+		\caption{PCB bottom copper layer of the analog prototype board.}\label{proto_bottom}
+	\end{centering}
+\end{figure}
+
+\section{Prototype baord characterisation}
+\subsection*{Transient response}
+The transient response of the CV mode to a rapidly changing load current was captured by a circuit switching a 10 $\Omega$ load resistor by MOSFET with rise and fall times of the order of 20 nS with results shown in Fig. \ref{CV_meas.eps}. The measured transient response is rather nice with a rise time of about 2 $\mu$S, an overshoot of 15\% and no ringing. These value compare very well with simulation. In a similar manner the response of the CC loop was obtained. The current limit was set to 0.5 A and a resistive load was switched on and off, results shown in figure \ref{CC_meas.eps}. Initially, in response to the sudden load increase, the pass transistor current overshoots to 0.74 A due a the time delay associated with the CC mode circuit. The response of the CC loop is rapid with a current overshoot lasting only 6 $\mu$S. 
+
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=14cm]{CV_meas.eps}
+		\caption{Measured constant voltage loop response to a step increase of load current from 20 mA to 2 A. }\label{CV_meas.eps}
+	\end{centering}	
+\end{figure}
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=14cm]{CC_meas.eps}
+		\caption{Measured constant current loop response to a step increase of load current.}\label{CC_meas.eps}
+	\end{centering}	
+\end{figure}
+%\subsection*{Load regulation}
+\subsection*{Noise}
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=12cm]{noise_spectrum.eps}
+		\caption{Output voltage noise spectrum.}\label{noise_spectrum}
+	\end{centering}	
+\end{figure}
+\begin{figure}[H]
+	\begin{centering}	
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=12cm]{noise_scope_2.eps}
+		\caption{Output voltage noise within the 10-10 kHz band.}\label{noise_scope}
+	\end{centering}	
+\end{figure}
+Those sources which significantly contribute to the output voltage noise are well known and the magnitude of the noise is easily calculated. In CV mode the noise sources are:
+\begin{itemize}
+	\item The voltage and current input referred noise of opamp U1
+	\item The thermal noise of feedback resistors R4 and R6 and potentiometer R18
+\end{itemize}
+Sources of noise within the feedback loop have minimal impact upon the output noise since the negative feedback loop minimises their influence. The output voltage noise density at frequencies greater than about 1 kHz, such that R18 has little effect and the LT6233 is within its flat band noise region is calculated to be,
+\begin{equation}
+\frac{R4+R6}{R6}\left[\textrm{e}_{\textrm{n}}^{2} + \textrm{I}_{\textrm{n}}^{2}\left(\frac{R_{4}R_{6}}{R_{4}+R_{6}}\right)^{2} + 4k_{B}T\frac{R_{4}R_{6}}{R_{4}+R_{6}}\right]^{1/2}
+\end{equation}
+\begin{equation}
+8\left[\left(1.9\times 10^{-9}\right)^{2} + (7.8\times 10^{-13}\times 438)^{2} + 438\times 4\times 1.38\times 10^{-23}\times 300\right]^{1/2}\, \textrm{V}/\sqrt{\textrm{Hz}}
+\end{equation}
+\begin{equation}
+ = 26.5\, \textrm{nV}/\sqrt{\textrm{Hz}}
+\end{equation}
+This value is very must less than the upper specification limit of 158 nV/$\sqrt{\textrm{Hz}}$. The voltage and current noise of the LT6233 opamp increases for frequencies less than 1 kHz and 100 Hz respectively. 
+\subsubsection*{Spectrum analysis result}
+The power supply noise within the 20 - 10 kHz band was measured by connecting the output up to a low-noise amplifier with a gain of 80 dB. Output noise of the CV mode was captured in the frequency and time-domain, the results of which are shown in figures \ref{noise_spectrum} and \ref{noise_scope}. This result can be compared with the LTspice result shown in figure \ref{noise_sim}. There is very agreement between the calculated, and simulated noise values. However, the measured noise spectrum is somewhat larger than expected for frequencies less than about 5 kHz. 
+\begin{figure}[H]
+	\hspace*{-0.5cm}
+	\begin{centering}
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=12cm]{LT_noise_plot.eps}
+		\caption{Simulated output voltage noise spectrum of the CV loop.}\label{noise_sim}
+	\end{centering}
+\end{figure}
+\end{document}	
+\section{Digital Control}
+parts:
+\begin{itemize}
+	\item MCP6051 - Vmeas and Imeas buffer
+	\item 
+\end{itemize}
+
+
+The digital control circuitry performs the following functions:
+\begin{itemize}
+	\item Sets the output voltage, $\textrm{V}_{set}$, and current limit, $\textrm{I}_{lim}$
+	\item Reads the output voltage, $\textrm{V}_{out}$, and load current, $\textrm{I}_{load}$
+	\item Performs all user interface tasks
+\end{itemize}
+DACs and ADCs are the obvious components for setting and reading the LPS parameters. A high level block diagram of the digital control system is shown in Fig. XX. 
+\subsection{Accuracy, resolution and component choices}
+\subsubsection{Readback voltage}
+The target output voltage readback error is $0.1\%$ at full scale +z-digits. 
+
+
+The voltage noise of a DAC and associated voltage reference will typically swap the input referred voltage noise of the control loop opamps. As such, filtering of the voltage reference and/or the DAC output is required. 
+The propose voltage and current limit setting circuit is shown in Fig. \ref{cleaner_complete}. The MAX6126 is chosen as the singular reference voltage source. The MAX6126 has a very low 1/f noise for a voltage reference I.C. which is otherwise cumbersome to filter. In addition, the MAX6126 has a temperature coefficient that exceeds the targeted voltage readback accuracy. 
+\begin{figure}[H]
+	\vspace{-2.0cm}
+	\begin{centering}
+		% Requires \usepackage{graphicx}
+		\includegraphics[width=20cm]{cleaner_complete}
+		%\vspace{-1.2cm}
+		\caption{DAC cleaner.}\label{cleaner_complete}
+	\end{centering}
+\end{figure}
+A FET input opamp is needed for a very small current noise is required. 
+\subsection*{Digital filtering}
+What are the options?
+\begin{itemize}
+	\item RC time constant
+\end{itemize}
+
+
+\subsection{Error budget}
+For voltage readout an acceptable maximum error is $0.1\%$, i.e. $10^{-3} = 1000$ ppm plus some number of digits. 
+The choice of this particular value is a little subjective, however, to arrive at a value the following should be considered:
+\begin{itemize}
+	\item The voltage tolerance of the classes of circuits expected to be powered by the supply
+	\item The expected impact of voltage error on circuit or device characterisation
+	\item Cost as a function of error budget and relative cost to the overall cost of the power supply. 
+	\item Voltage drop across power leads
+\end{itemize}
+1000 ppm puts the voltage accuracy at the tighter end of the DMM spectrum. 
+\subsection{Sources of error}
+The voltage readout error sources assuming calibration has been performed:
+\begin{itemize}
+	\item ADC reference TCR
+	\item Voltage divider TCR
+	\item Voltage divider VCR
+	\item ADC error TCR
+	\item ADC resolution error
+	\item ADC non-linearities
+\end{itemize}
+A 15-bit ADC resolution corresponds to 32 K, which is well within the error budget at full scale. Time dependent drift of the reference voltage and voltage divider are also sources of error. If drift only occurs over long time periods, it is possible to consider drift as a source of error that can be eliminated by calibration. Drift over shorter time periods must be taken into consideration when analysing error. 
+
+The resolution error shall be considered separately from the other errors to give an error value of the form: $x.x\% + x$ digits. 
+
+\subsubsection*{Load current measurement error}
+The following is a list of the significant sources of error:
+\begin{itemize}
+	\item Variations of the pass transistor beta (base current error)
+	\item TCR of the sense resistor
+	\item TCR of other resistors is the measurement chain
+	\item Temperature dependence of the offset of the LT6202
+	\item Reference variations
+\end{itemize}
+If the pass transistor beta were constant there would be no error associated with the base current since a single point correction eliminates what amounts to a gain error. The relative error due to a variation in beta is given by,
+\begin{equation}
+\textrm{error} = \frac{1}{\beta}-\frac{1}{\beta_{\textrm{cal}}}
+\end{equation}
+The larger $\beta$ is in general, the small the error. If a reasonable estimate is made of the $\beta$ temperature and voltage dependence then the maximum error can be well within 1\%. I should construct a simple circuit that results in the pass transistor conducting a constant, and variable, emitter current. This must be done while monitoring and adjusting the transistor temperature and collect-to-emitter voltage. Temperature monitoring is a simple matter: at the beginning of an acquisition cycle measure the temperature, and after stability has been reached, measure the temperature again. 
+
+The TCR of the main pass transistor will have the largest impact. Assuming a TCR or 100 ppm and a differential temperature of 40 $^{\circ}$C this leads to an error of $4\times 10^{-3}$. A differential temperature of atleast 20$^{\circ}$C is inevitable, therefore, the only way to reduce the contribution of this error is through a reduction of the TCR value. 
+
+\subsubsection{Voltage reference}
+If the dominant errors were all due to temperature dependence, restricting the designated operating temperature range can (on paper) eliminate these sources of error. This is, however, unrealistic since a power supply will operate over a range of temperatures and there is a risk of specifying an error that is unrealistic. An estimate:
+\begin{itemize}
+	\item reference 10 ppm = \$4.5
+	\item reference 20 ppm = \$3.8
+	\item resistor 25 ppm = not much
+	\item resistor 10 ppm = \$ 1.0
+\end{itemize}
+The estimates suggest aiming for 10 ppm voltage reference. Considering component costs, identify components with a TCR of 10 ppm and analyse for cost, typical and maximum temperature dependence of error. 
+\begin{itemize}
+	\item MAX6220ASA \$3.4, trim, 2.4 $\mu V$, 8 to 40 V input, more stable
+	\item MAX6126BASA \$5, 2.4 $\mu V$, 4.3 to 12.6 V input
+\end{itemize}
+\subsubsection{ADC}
+ADS8866
+\begin{itemize}
+	\item 100 kHz sample
+	\item Vref: 2.5 to 5 V (independent of AVDD)
+	\item Unipolar 0 to Vref
+	\item Input leakage current: 5 nA during acquisition
+	\item Offset error: 1 mV typ
+	\item Reference input current during conversion: 35 $\mu$A
+	\item Capacitor decoupling at the reference input: 10-22 $\mu$F
+	\item Supply current: 0.4 mA max
+	\item Input capacitance: 60 pF
+	\item Input leakage current: 5 nA
+\end{itemize}
+If the typical leakage current is 5 nA, and the maximum error voltage is, say, 1/30 000, the maximum input resistance is,
+\begin{equation}
+\frac{4}{5\times 10^{-9}\time 3\times 10^{4}} = \frac{4}{5\times 10^{-5}} = \textrm{a lot}
+\end{equation}
+Therefore, both Vmeas and Imeas connect directly to the ADC, Imeas through an isolation resistor of about 10\,k$\Omega.$ 
+
+\subsection*{Reference circuit}
+\begin{itemize}
+	\item The two DACs shall operate off a single reference filter.
+	\item The DAC outputs will be filtered
+	\item The ADCs shall operate off a single reference filter that is split
+	\item A MAX6126 is the singular system reference. It is filtered strongly, with a sub 10 Hz role off. The output connects directly to the DACs. 
+	\item The MAX6126 output is also connected to the ADC reference filters  
+\end{itemize}
+
+\section{Internal power supplies}
+opamp PSRR coupled with supply noise should be less than the opamp input referred noise. 
+A calculation of the supply noise limit is:
+\begin{itemize}
+	\item low frequency: $3\,nV\times 10^{5}/\sqrt{Hz} = 3\times 10^{-4}\,V/\sqrt{Hz}$
+\end{itemize}
+An estimate of the power supply noise now has to be made. The shot noise density is,
+\begin{equation}
+\sqrt{2qI}/\sqrt{Hz}
+\end{equation}
+A zener diode, particularly one operating in an avalanche mode has a noise magnitude that exceeds shot noise by about an order of magnitude. For a zener diode current of 1 mA the noise density is $1.8\times 10^{-10}A/\sqrt{Hz}$. The zener diode impedance at 1 mA is about 150 $\Omega$. Therefore the voltage noise density at the zener diode is $2.7\times 10^{-8} V/\sqrt{Hz}$. This value is 4 orders of magnitude less than the low frequency limit suggesting that minimal filtering of the zener diode noise is required. However, couple noise due to transient current will need to be considered later. 
+
+\section{Smoothing capacitance}
+The bridge rectifier smoothing capacitance is chosen considering its
+\begin{itemize}
+	\item Magnitude
+	\item ESR and ripple current capability
+	\item Lifetime
+	\item Size
+	\item Cost
+\end{itemize}
+together with transformer such that the supply will not fall out of regulation under the range of its specified supply capability. It should be noted that the transformer $\textrm{I}^{2}_{\textrm{RMS}}$ value has a only a weak dependence on the magnitude of the smoothing capacitance value, in part, due to the transform winding resistance. Therefore, the capacitance value will have negligible impact upon transformer heat generation.  
+
+
+The voltage switching MOSFET needs to have a break down voltage of only say 30-40 V. For a SMT device with not much heatsinking an acceptable resistance limit is 0.5/16 = 30 m$\Omega$. 
+
+\section{Vref}
+A Vref circuit drives the Vref pins of an ADC and two DACs. Vout of the two DACs is cleaned and therefore Vref noise is not of much consequence. Vref noise has a greater consequence on the ADC. The reference referred ADC quantisation noise is 4.096/65 000 = 6.3$\times 10^{-5}$ = $63\,\mu V$. Given the noise of the reference I.C. minimal filtering is required for the ADC. The ADC reference load current is $78.5\,\mu$A. A small resistance, $\approx 5\,\Omega$ can be connected in series with an ADC Vref decoupling capacitance of $10\,\mu F$. The ADC Vref has a corner frequency of,
+\begin{equation}
+\omega = \frac{1}{4.7\times 10^{-5}} = 3.4\, \textrm{kHz}
+\end{equation}
+\subsubsection{Low-frequency noise}
+The PSRR of the MAX6126 has a knee frequency of 10 Hz. At 10 Hz the PSRR is 100 dB and therefore the internal supply noise will not have an impact upon Vref noise. At higher frequencies the DAC output voltage cleaners take care of noise. 
+
+
+\section{Power board MCU requirements}
+Most of the time the MCU does very little. At times, the MCU will perform the following tasks:
+\begin{itemize}
+	\item Control the slew rate by ramping the voltage DAC at a specified rate
+	\item Monitoring of the output voltage and load current while the voltage is ramping
+	\item Monitor the output voltage and make small corrections to the voltage DAC
+	\item Perform digital filtering of the load current for fault detection
+	\item Transmit information to the control board
+	\item Receive and respond to commands sent by the control board
+\end{itemize}
+\subsection{Voltage ramping}
+The following points should be noted:
+\begin{itemize}
+	\item An additional apparent load current source exists while the voltage is ramping due to the power supply output capacitance and any additional capacitance associated with the load.
+	\item Control over the voltage ramp slew rate may be useful, however, rise times shorter than 10 mS probably have little value. Additionally, there is little value beyond controlling the slew rate to fast, medium or slow rates. 
+	\item A maximum ADC and DAC sampling rate of 10 kHz is sufficient (100 samples for a 10 mS rise time)
+\end{itemize}
+Software allows for complete control over the slew rate, therefore, the second point becomes one of choice. While the voltage is ramping it may be necessary to make a correction to the current limit. This would be the case when powering a load with a small current requirement and it is desirable to set a current limit close to the nominal load current. 
+\subsubsection{Voltage ramping approach}
+There are two main approaches that can be followed: set a current limit either in CC or digital shutdown mode and then begin voltage ramping. The rate of voltage ramp is monitored, the capacitance correction calculated and a subsequent correction is made to the current limit. 
+
+\subsection{Calibration offests}
+For optimal read back accuracy offsets associated with the ADC, DAC and associated opamps need to be calibrated for. In particular 
+\begin{itemize}
+	\item Voltage read back ADC offset
+	\item Load current read back ADC offset
+	\item I lim DAC offset
+\end{itemize}
+The voltage setting DAC does not require offset calibration since the output voltage is read back. The calibration offsets need to be stored in non-volatile memory. 
+\subsection{I/O pin estimates}
+\begin{itemize}
+	\item voltage DAC - 3
+	\item I limit DAC - 1
+	\item Voltage ADC - 3
+	\item Current ADC - 1
+	\item Communications with control board - 4
+	\item Digital current limit test, inhibit and reset - 2
+	\item Digital shutdown filtering - 2
+	\item Analogue current limit inhibit - 1
+\end{itemize}
+A total of 18 I/O pins - 28 pin MCU will suffice. 
+
+
+
+
+
+\subsubsection*{Isolated channels}
+Isolating channels to a high degree of ohmic resistance is a straightforward matter. Achieving high impedance isolation at higher frequencies requires consideration of capacitive coupling. 
+
+\subsubsection*{Adjustable voltage resolution}
+What resolution do applications require ? The thermal voltage at room temperature (25 mV) imposes resolution conditions on applications that directly deal with pn-junction I-V characterisation. A 10 mV resolution is likely to be sufficient for the vast majority applications and 1 mV sufficient for the rest. Voltage adjustment resolution must be considered with respect to:
+\begin{itemize}
+	\item Noise and ripple
+	\item Temperature and other drift of the voltage read back accuracy
+\end{itemize}
+There seems little point in aiming for a particular voltage resolution if the noise and ripple swamp the resolution. Similarly, if the supply voltage exhibits drift over shorter time periods it may make the resolution ineffectual. The cost of resolution results from the necessary ADC and DAC resolution and associated circuitry. 10 mV resolution requires 12-its whereas 1 mV requires 15-bits. 
+
+\subsubsection*{Analog constant current (CC) and digital shutdown current protection}
+The CC feature does not lend itself to choices. On the other hand, the utility of digital shutdown current protection is expanded by the incorporation of adjustable low-pass filtering. A resolution of 1 mA only requires 12-bit devices for a 4 A current span. However, due to circuit accuracy it is expected that an agreement between the current limit and the load current to within 1 mA will be difficult and costly. 
+
+\subsubsection*{Digital control of voltage and current limit setting}
+The internal resolution of the voltage and current limit setting must be greater than that of the readout otherwise the readout will take random multiple steps for each setting increment.
+Therefore, the voltage setting DAC must be 16-bits at a minimum. The current limit setting may as well be 12-bits since there will be some disagreement between the current limit setting and load current when in CC mode. 
+\subsubsection*{Load current readout}
+Will the power supply be used to power sub mA circuits with the desire to monitor the current to such resolutions ? More later
+
+\subsubsection*{Communications interface}
+For now, this will be a separate plug-in PCB. 
+
+\subsubsection*{Remote sense}
+Not the most useful of all things. A decision will be made after the rest of the circuit topology is designed and understood. This decision is based on compatibility with the rest of the LPS and cost. 
+
+
+
+
+\section{Things that need explaination}
+\begin{itemize}
+	\item  
+\end{itemize}
+
+1. Finish the write up [have another shot at getting a flatter spectrum]
+2. Clean
+3. Election
+4. Tax ?
+
+
+1. PCB design description
+2. Analog dynamic description
+
