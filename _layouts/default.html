@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{% if page.excerpt %}{{ page.excerpt | strip_html | strip_newlines | truncate: 160 }}{% else %}{{ site.description }}{% endif %}">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ "/stylesheets/font-awesome.min.css" | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ "/stylesheets/pygment_trac.css" | prepend: site.baseurl }}">
+    <link rel="stylesheet" href="{{ "/stylesheets/styles.css" | prepend: site.baseurl }}">
+
+
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+    <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="wrapper">
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 col-md-offset-3 header">
+            <h1 class="site-name">{{site.title}}</h1>
+            <p class="site-tagline"><a href="http://gregjolley.github.io/amplifier/contact/">Greg Jolley</a></p>
+
+            <p class="site-tagline">
+              <a href="{{ site.baseurl }}/media/JolleyGS_linear-power-supply.pdf" target="_blank">
+                <img src="{{ site.baseurl }}/images/JolleyGS_linear-power-supply.png" class="img-thumbnail" width="200"></img><br>
+                <small>PDF (1.1M)</small>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="content">
+      {{ content }}
+    </section>
+
+    </div>
+
+    <footer>
+      <div class="text-center">
+        <p>
+          <small>Author: <a href="http://gregjolley.github.io/amplifier/contact/">Greg Jolley</a></small><br>
+          <a href="http://gregjolley.github.io/amplifier/" class="site-title">{{site.title}}</a><br>
+          <a href="http://gregjolley.github.io/amplifier/media/JollyGS_design_simulation_and_characterisation_of_a_class-B_audio_power_amplifier.pdf" target="_blank">Download PDF</a><br>
+        </p>
+
+        <ul class="nav-icon">
+          <li><a href="http://gregjolley.github.io/amplifier/"><i class="fa fa-microchip"></i></amail></li>
+          <li><a href="http://gregjolley.github.io/amplifier/feed.xml" title="Feed" class="hint-top-middle"><i class="fa fa-feed"></i></a></li>
+          <li><a href="mailto:{{ site.email }}"><i class="fa fa-telegram"></i></a></li>
+          <li><a href="https://github.com/{{site.github_username}}" title="Github" data-hint="Github"  title="Github"><i class="fa fa-github"></i></a></li>
+          <li><a href="http://gregjolley.github.io/amplifier/contact/" class="site-title"><i class="fa fa-user-circle"></i></a></li>
+        </ul>
+      </div>
+    </footer>
+</div>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-96473871-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+</body>
+</html>
